@@ -1,1 +1,297 @@
 
+# this is needed for upload to work
+scalar Upload
+
+type File {
+  id: ID!
+  path: String!
+  filename: String!
+  mimetype: String!
+  encoding: String!
+}
+
+type Product {
+  _id: String
+  title: String
+  category_id: String
+  price: Float
+  price_cost: Float
+  totalStock: Int
+  name: String
+  amountOfPurchases: Int
+  whitImage: Int
+  discount: Float
+}
+
+enum Permission {
+  ADMIN
+  USER
+  SALES_MANAGER
+  ITEMCREATE
+  ITEMUPDATE
+  ITEMDELETE
+  PERMISSIONUPDATE
+  SALES
+}
+
+type User {
+  _id: String
+  name: String
+  surnames: String
+  email: String
+  password: String
+  permissions: [Permission]
+}
+
+type Client {
+  _id: String
+  name: String
+  surnames: String
+  email: String
+  dir: String
+  phone: String
+  ci_ruc: String
+  totalPurchases: Int
+}
+
+type Owner {
+  _id: String
+  owner_name: String
+  name: String
+  mail: String
+  dir: String
+  branch_Address: String
+  special_Taxpayer_No: Int
+  forced_To_Keep_Accounting: String
+  phone: String
+  ci_ruc: String
+  environment: Int
+  issue: Int
+}
+
+type Provider {
+  _id: String
+  item: String
+  name_or_business_name: String
+  sale_price: Float
+  sale_date: String
+}
+
+type Category {
+  _id: String
+  name: String
+  colorHex: String
+}
+
+type Order {
+  _id: String
+  ruc_ci: String
+  products: [ProductSell]
+  full_payment: Float
+  paymentType: PaymentType
+  date: String
+  invoiced: Boolean
+  invoiced_status: String
+  secuencialNumber: String
+}
+
+type PaginateOrder {
+  limit: Int
+  orders: [Order]
+  offset: Int
+  page: Int
+  totalDocs: Int
+  totalPages: Int
+}
+
+input inputProductSell {
+  _id: String
+  amount: Int
+}
+
+type ProductSell {
+  _id: String
+  amount: Int
+}
+
+input inputPaymentType {
+  _id: String
+  type: String
+  owner: String
+  account_number: String
+  bank: String
+  checkDate: String
+  checkValue: Float
+}
+
+type PaymentType {
+  _id: String
+  type: String
+  owner: String
+  account_number: String
+  bank: String
+  checkDate: String
+  checkValue: Float
+}
+
+type serverDate {
+  myserverDate: String
+}
+
+type AuthData {
+  userId: ID!
+  token: String!
+  tokenExpiration: Int!
+}
+
+type TokenMessage {
+  message: String
+}
+
+type Query {
+  ##Product funtions
+  products: [Product!]
+  findProduct(_id: String): Product!
+  ##User functions
+  users: [User!]
+  me(_id: String): User
+  ##User functions
+  clients: [Client!]
+  ##Provider functions
+  providers: [Provider!]
+  ##Category functions
+  categories: [Category!]
+  findCategory(_id: String): Category
+  CategoriesWithProduct: [Category!]
+  meClient(client_id: String): Client
+  ##Date
+  getDate: serverDate!
+  ##Order functions
+  orders: [Order!]
+  lastOrders: [Order]
+  pagOrders(limit: Int, page: Int): PaginateOrder
+  ##Owner functions
+  getOwner: Owner!
+  ##WebSercive
+  testWebService: Owner
+  testWebServiceAuth: Owner
+  ##testEasySoapRequest: Owner
+  my_xades_adapt_module(client_id: String): Owner
+  ##Statistics
+  getBestClients: [Client]
+  getBestProducts: [Product]
+  getTodayTotalPayment: Float
+}
+
+type Mutation {
+  ##Order functions
+  createOrder(
+    ruc_ci: String
+    products: [inputProductSell]
+    paymentType: inputPaymentType
+    full_payment: Float
+  ): Order
+  ##Product funtions
+  createProduct(
+    title: String
+    category_id: String
+    price: Float
+    price_cost: Float
+    totalStock: Int
+    file: Upload
+    discount: Float
+  ): Product!
+  deleteProduct(_id: String): Product!
+  updateProduct(
+    _id: String
+    title: String
+    category_id: String
+    price: Float
+    price_cost: Float
+    totalStock: Int
+    file: Upload
+  ): Product!
+  findProductsByCategory(_idCategory: String): [Product]
+  ##User funcions
+  createUser(
+    name: String
+    surnames: String
+    email: String
+    password: String
+  ): User!
+  deleteUser(_id: String): User!
+  updateUser(
+    _id: String
+    name: String
+    surnames: String
+    email: String
+    password: String
+  ): User!
+
+  ##Client functions
+  createClient(
+    name: String
+    surnames: String
+    email: String
+    dir: String
+    phone: String
+    ci_ruc: String
+  ): Client!
+  updatePermissions(permissions: [Permission], userId: String): User
+  deleteClient(_id: String): Client!
+  updateClient(
+    _id: String
+    name: String
+    surnames: String
+    email: String
+    dir: String
+    phone: String
+    ci_ruc: String
+  ): Client!
+  findClient(ci_ruc: String): Client!
+  ##Provider functions
+  createProvider(
+    name_or_business_name: String
+    sale_price: Float
+    item: String
+  ): Provider!
+  deleteProvider(_id: String): Provider!
+  updateProvider(
+    _id: String
+    name_or_business_name: String
+    sale_price: Float
+    item: String
+  ): Provider!
+  ##Category functions
+  createCategory(name: String, colorHex: String): Category!
+  deleteCategory(_id: String): Category
+  updateCategory(_id: String, name: String, colorHex: String): Category!
+  findCategoryInProduct(_id: String): Category
+  ##Authentication
+  login(email: String, password: String): AuthData!
+  ##updateOwner
+  createOwner(
+    name: String
+    owner_name: String
+    mail: String
+    dir: String
+    phone: String
+    ci_ruc: String
+  ): Owner
+  updateOwner(
+    _id: String
+    name: String
+    owner_name: String
+    mail: String
+    dir: String
+    phone: String
+    ci_ruc: String
+    branch_Address: String
+    special_Taxpayer_No: Int
+    forced_To_Keep_Accounting: String
+    environment: Int
+    issue: Int
+  ): Owner
+  uploadTokenSRI(password: String, file: Upload): TokenMessage
+  productFormatTest(products: [inputProductSell]): String
+}
